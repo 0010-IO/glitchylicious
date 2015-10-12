@@ -12,32 +12,27 @@ defmodule Glitchylicious do
       alias Glitchylicious, as: G
 
       def glitch do
-        G.glitch("./myimage.jpg", [iter: 10, amount: 50, seed: 10])
+        G.glitch("./myimage.jpg", %{iter: 10, amount: 50, seed: 10}
       end
   """
 
   @doc """
   Glitches jpg data.
 
-  Takes an input path (original image), output path (path to save glitch to),
-  as well as a config list. Returns corrupted binary data.
+  Takes an input path (original image)
+  as well as a config map. Returns corrupted binary data.
   
-  Config list should include the following parameters:
+  Config map should include the following parameters:
 
       iter   - number of iterrations to perform.
       amount - corruption severety.
       seed   - seed value.
   """
-  @spec glitch(String.t, list) :: binary
-  def glitch(input, [iter: iter, amount: amount, seed: seed]) do
+  @spec glitch(String.t, map) :: binary
+  def glitch(input, %{iter: iter, amount: amount, seed: seed}) do
     raw = File.read!(input)
-    h = header_size(raw)
-    do_glitch(raw, h, iter, amount, seed)
+    do_glitch(raw, header_size(raw), iter, amount, seed)
   end
-
-	defp header_size(raw), do: header_size(raw, 0)
-	defp header_size(<< 255, 218, _data::binary >>, acc), do: acc + 2
-	defp header_size(<< _a::8, b::8, data::binary >>, acc), do: header_size(<< b >> <> data, acc + 1)
 
   defp do_glitch(image, len, iter, amount, seed) do
     do_glitch(image, len, 0, iter, amount / 100, seed / 100)
@@ -64,4 +59,10 @@ defmodule Glitchylicious do
               len, i + 1,
               iter, amount, seed)
 	end
+  
+  
+  defp replace(image, ind, replacement) do
+    << head :: binary-size(ind), _ :: 8, rest :: binary >> = image
+    << head :: binary, replacement, rest :: binary >>
+  end
 end
