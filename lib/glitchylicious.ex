@@ -1,5 +1,5 @@
 defmodule Glitchylicious do
-	@moduledoc """
+  @moduledoc """
   Produces magnificent glitches,
   by corrupting some jpg bytes.
   
@@ -37,29 +37,27 @@ defmodule Glitchylicious do
   defp do_glitch(image, len, iter, amount, seed) do
     do_glitch(image, len, 0, iter, amount / 100, seed / 100)
   end
-	defp do_glitch(image, _len, i, iter, _amount, _seed) when i == iter do
-		image
-	end
-	defp do_glitch(image, len, i, iter, amount, seed) do
-		max_index = byte_size(image) - len - 4
-		px_min = round(max_index / iter * i)
-		px_max = round(max_index / iter * (i + 1))
-		delta = px_max - px_min
-		px_i = round(px_min + delta * seed)
+  defp do_glitch(image, _len, i, iter, _amount, _seed) when i == iter do
+    image
+  end
+  defp do_glitch(image, len, i, iter, amount, seed) do
+    max_index = byte_size(image) - len - 4
+    px_min = round(max_index / iter * i)
+    px_max = round(max_index / iter * (i + 1))
+    delta = px_max - px_min
+    px_i = round(px_min + delta * seed)
     
-		byte_index = if px_i > max_index do
-      len + max_index
-    else
-      len + px_i
-    end
-    
-		<<a::binary-size(byte_index), _::8, rest::binary>> = image
-    
-		do_glitch(<< a :: binary, Float.floor(amount * 256) |> trunc, rest :: binary >>,
-              len, i + 1,
-              iter, amount, seed)
-	end
+    byte_index = if px_i > max_index,
+    do: len + max_index,
+    else: len + px_i
+
+    replace(image, byte_index, Float.floor(amount * 256) |> trunc)
+    |> do_glitch(len, i + 1, iter, amount, seed)
+  end
   
+  defp header_size(raw), do: header_size(raw, 0)
+  defp header_size(<< 255, 218, _data::binary >>, acc), do: acc + 2
+  defp header_size(<< _a::8, b::8, data::binary >>, acc), do: header_size(<< b :: 8, data :: binary >>, acc + 1)
   
   defp replace(image, ind, replacement) do
     << head :: binary-size(ind), _ :: 8, rest :: binary >> = image
