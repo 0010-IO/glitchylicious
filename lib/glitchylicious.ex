@@ -47,20 +47,21 @@ defmodule Glitchylicious do
 	end
 	defp do_glitch(image, len, i, iter, amount, seed) do
 		max_index = byte_size(image) - len - 4
-		px_min = round((max_index / iter) * i)
-		px_max = round((max_index / iter) * (i + 1))
-		delta = (px_max - px_min)
-		px_i = round(px_min + (delta * seed))
+		px_min = round(max_index / iter * i)
+		px_max = round(max_index / iter * (i + 1))
+		delta = px_max - px_min
+		px_i = round(px_min + delta * seed)
     
 		byte_index = if px_i > max_index do
-      len + max_index - 1
+      len + max_index
     else
-      len + px_i - 1
+      len + px_i
     end
     
 		<<a::binary-size(byte_index), _::8, rest::binary>> = image
-    glitched = << a :: binary, (Float.floor(amount * 256) |> trunc) :: 8, rest :: binary >>
     
-		do_glitch(glitched, len, i + 1, iter, amount, seed)
+		do_glitch(<< a :: binary, Float.floor(amount * 256) |> trunc, rest :: binary >>,
+              len, i + 1,
+              iter, amount, seed)
 	end
 end
