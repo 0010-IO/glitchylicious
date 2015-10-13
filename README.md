@@ -9,7 +9,7 @@ Implementation of [georg's original algorithm](https://github.com/snorpey/glitch
 
 ```elixir
 defp deps do
-  [{:glitchylicious, github: "0010-IO/glitchylicious"}]
+  [{:glitchylicious, "~> 0.0.1"}]
 end
 ```
 
