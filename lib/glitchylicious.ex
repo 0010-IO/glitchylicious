@@ -83,7 +83,7 @@ defmodule Glitchylicious do
     do: len + max_index,
     else: len + px_i
 
-    replace(image, byte_index, roud(amount * 256))
+    replace(image, byte_index, round(amount * 256))
     |> do_glitch_reverse(len, i - 1, iter, amount, seed)
   end
   
