@@ -36,7 +36,7 @@ defmodule Glitchylicious do
       :normal -> 
         do_glitch(raw, header_size(raw), iter, amount, seed)
       :reverse ->
-        glitch_reverse(raw, header_size(raw), iter, amount, seed)
+        do_glitch_reverse(raw, header_size(raw), iter, amount, seed)
       _ ->
         do_glitch(raw, header_size(raw), iter, amount, seed)
     end
@@ -67,7 +67,7 @@ defmodule Glitchylicious do
   end
 
   defp do_glitch_reverse(image, len, iter, amount, seed) do
-    do_glitch(image, len, iter, iter, amount / 100, seed / 100)
+    do_glitch_reverse(image, len, iter, iter, amount / 100, seed / 100)
   end
   defp do_glitch_reverse(image, _len, 0, iter, _amount, _seed) do
     image
@@ -84,7 +84,7 @@ defmodule Glitchylicious do
     else: len + px_i
 
     replace(image, byte_index, roud(amount * 256))
-    |> do_glitch(len, i - 1, iter, amount, seed)
+    |> do_glitch_reverse(len, i - 1, iter, amount, seed)
   end
   
   defp header_size(raw), do: header_size(raw, 0)
